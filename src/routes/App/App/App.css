@@ -1,0 +1,55 @@
+.app {
+  width: 100vw;
+  height: 100vh;
+  background-color: #f2fffc;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100vw;
+  height: 6vh;
+  background-color: #172026;
+  color: #fff;
+  font-size: 3vh;
+  font-weight: 200;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 94vh;
+}
+
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-start;
+  width: auto;
+  height: 94vh;
+  font-size: 4vh;
+  font-weight: 400;
+  background-color: #e4fff8;
+}
+
+.nav-item {
+  color: #000;
+}
+
+.nav-item-active {
+  color: #027373;
+}
+
+.content {
+  width: 100vw;
+  height: 94vh;
+}

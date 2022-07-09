@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Complaints.css';
 import { IoIosPaper } from 'react-icons/io';
+import { getAllReports } from '../../../../services/AdminServices';
 
 const Complaints = ({
   isComplaint,
@@ -8,78 +9,36 @@ const Complaints = ({
   setIsComplaints,
   setComplaintId,
 }) => {
-  const tableInfo = [
-    {
-      id: 1,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 2,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 3,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 4,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 5,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 6,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 7,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 8,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 9,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-    {
-      id: 10,
-      reason: 'Not related to recycling',
-      reporting: 'acostam331',
-      frequency: 6,
-      date: '6/6/2022',
-    },
-  ];
+  const [isLoading, setIsloading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState([]);
+  const [reports, setReports] = useState([]);
+  let correlative = 0;
+
+  useEffect(() => {
+    const getReports = async () => {
+      const tempData = await getAllReports(page);
+      if (tempData.status === 200) {
+        handleReports(tempData.data);
+        handlePages(tempData.data);
+        setIsloading(false);
+      }
+    };
+    getReports();
+  }, [page]);
+
+  const handleReports = (data) => {
+    setReports(data.reports);
+  };
+
+  const handlePages = (data) => {
+    setPages([]);
+    let tempPages = [];
+    for (let i = 1; i <= data.pages; i++) {
+      tempPages.push(i);
+    }
+    setPages(tempPages);
+  };
 
   return (
     <div className="complaints-container">
@@ -88,47 +47,73 @@ const Complaints = ({
           <p className="title">Complaints on Recycluster</p>
         </div>
         <div className="complaints-table-container px-4">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Reason</th>
-                <th>Reporting user</th>
-                <th>Frequency</th>
-                <th>Creation date</th>
-                <th className="review-cell">Review</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableInfo.map((info) => {
-                const { id, reason, reporting, frequency, date } = info;
+          {isLoading ? (
+            ''
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Reason</th>
+                  <th>Reporting user</th>
+                  <th>Frequency</th>
+                  <th>Creation date</th>
+                  <th className="review-cell">Review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((report) => {
+                  correlative += 1;
 
-                return (
-                  <tr key={id}>
-                    <th>{id}</th>
-                    <th>{reason}</th>
-                    <th>{reporting}</th>
-                    <th>{frequency}</th>
-                    <th>{date}</th>
-                    <th className="button-cell">
-                      <button
-                        onClick={() => {
-                          setIsComplaint(true);
-                          setIsComplaints(false);
-                          setComplaintId(id);
-                        }}
-                      >
-                        <IoIosPaper />
-                      </button>
-                    </th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  return (
+                    <tr key={report.report.id}>
+                      <th>{correlative}</th>
+                      <th>{report.report.reason}</th>
+                      <th>{report.user.username}</th>
+                      <th>{report.report.frequency.length + 1}</th>
+                      <th>
+                        {report.report.createdAt.substring(
+                          0,
+                          report.report.createdAt.indexOf('T')
+                        )}
+                      </th>
+                      <th className="button-cell">
+                        <button
+                          onClick={() => {
+                            setIsComplaint(true);
+                            setIsComplaints(false);
+                            setComplaintId(report.report.id);
+                          }}
+                        >
+                          <IoIosPaper />
+                        </button>
+                      </th>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
           <div className="pagination-container my-4">
-            <button className="pagination-item-active mx-1">1</button>
-            <button className="pagination-item mx-1">2</button>
+            {isLoading
+              ? ''
+              : pages.map((pageIndex) => {
+                  return (
+                    <button
+                      key={pageIndex}
+                      className={
+                        pageIndex === page
+                          ? 'pagination-item-active mx-1'
+                          : 'pagination-item mx-1 '
+                      }
+                      onClick={() => {
+                        setPage(pageIndex);
+                      }}
+                    >
+                      {pageIndex}
+                    </button>
+                  );
+                })}
           </div>
         </div>
       </div>
